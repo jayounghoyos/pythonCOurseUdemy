@@ -1,39 +1,64 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from dotenv import load_dotenv
 import os
 
-options = webdriver.ChromeOptions()
-options.add_experimental_option("detach",True)
-browser = webdriver.Chrome(options=options)
-browser.implicitly_wait(10)
-browser.get("https://github.com")
-
-#Cargar variables de entorno
+# Cargar variables de entorno
 load_dotenv(dotenv_path='paquetes_populares/.env')
 
 gh_user = os.environ.get("gh_user")
-browser.implicitly_wait(5)
 gh_pass = os.environ.get("gh_pass")
 
 if gh_user is None or gh_pass is None:
     raise ValueError("Las variables de entorno gh_user o gh_pass no están configuradas correctamente.")
 
-link = browser.find_element(By.LINK_TEXT, "Sign in")
-link.click()
-
-user_input = browser.find_element(By.ID, "login_field")
-pass_input = browser.find_element(By.ID, "password")
-
-user_input.send_keys(os.environ.get("gh_user"))
-user_input.send_keys(os.environ.get("gh_pass"))
-
+# Opciones del navegador
+browser = webdriver.Chrome()
 browser.implicitly_wait(10)
-pass_input.send_keys(Keys.RETURN)
+browser.get("https://github.com")
 
-profile = browser.find_element(By.CLASS_NAME,"css-truncate.css-target.ml-1")
+try:
+    # Iniciar sesión
+    link = WebDriverWait(browser, 20).until(
+        EC.element_to_be_clickable((By.LINK_TEXT, "Sign in"))
+    )
+    link.click()
 
-label = profile.get_attribute("innerHTML")
+    user_input = WebDriverWait(browser, 20).until(
+        EC.presence_of_element_located((By.ID, "login_field"))
+    )
+    pass_input = WebDriverWait(browser, 20).until(
+        EC.presence_of_element_located((By.ID, "password"))
+    )
 
-assert "jayounghoyos" in label
+    # Ingresar las credenciales
+    user_input.send_keys(gh_user)
+    pass_input.send_keys(gh_pass)
+
+    # Enviar el formulario
+    pass_input.send_keys(Keys.RETURN)
+
+    # Esperar a que el botón del usuario esté presente y hacer clic en él
+    user_button = WebDriverWait(browser, 20).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "button[data-login='jayounghoyos']"))
+    )
+    user_button.click()
+
+    # Verificar el nombre del usuario en el menú desplegable
+    user_name_element = WebDriverWait(browser, 20).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "span.Button-label"))
+    )
+
+    user_name = user_name_element.text
+
+    assert "Juan Andrés Young Hoyos" in user_name
+    print("Verificación exitosa: El nombre del usuario es correcto.")
+
+except Exception as e:
+    print(f"An error occurred: {e}")
+finally:
+    # Cerrar el navegador
+    browser.quit()
