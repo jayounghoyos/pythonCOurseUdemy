@@ -20,45 +20,41 @@ browser = webdriver.Chrome()
 browser.implicitly_wait(10)
 browser.get("https://github.com")
 
-try:
-    # Iniciar sesión
-    link = WebDriverWait(browser, 20).until(
-        EC.element_to_be_clickable((By.LINK_TEXT, "Sign in"))
-    )
-    link.click()
+# Iniciar sesión
+link = WebDriverWait(browser, 20).until(
+    EC.element_to_be_clickable((By.LINK_TEXT, "Sign in"))
+)
+link.click()
 
-    user_input = WebDriverWait(browser, 20).until(
-        EC.presence_of_element_located((By.ID, "login_field"))
-    )
-    pass_input = WebDriverWait(browser, 20).until(
-        EC.presence_of_element_located((By.ID, "password"))
-    )
+user_input = WebDriverWait(browser, 20).until(
+    EC.presence_of_element_located((By.ID, "login_field"))
+)
+pass_input = WebDriverWait(browser, 20).until(
+    EC.presence_of_element_located((By.ID, "password"))
+)
 
-    # Ingresar las credenciales
-    user_input.send_keys(gh_user)
-    pass_input.send_keys(gh_pass)
+# Ingresar las credenciales
+user_input.send_keys(gh_user)
+pass_input.send_keys(gh_pass)
 
-    # Enviar el formulario
-    pass_input.send_keys(Keys.RETURN)
+# Enviar el formulario
+pass_input.send_keys(Keys.RETURN)
 
-    # Esperar a que el botón del usuario esté presente y hacer clic en él
-    user_button = WebDriverWait(browser, 20).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, "button[data-login='jayounghoyos']"))
-    )
-    user_button.click()
+# Esperar a que el botón del usuario esté presente y hacer clic en él
+user_button = WebDriverWait(browser, 20).until(
+    EC.element_to_be_clickable((By.CSS_SELECTOR, "button[data-login='jayounghoyos']"))
+)
+user_button.click()
 
-    # Verificar el nombre del usuario en el menú desplegable
-    user_name_element = WebDriverWait(browser, 20).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "span.Button-label"))
-    )
+# Verificar el nombre del usuario en el menú desplegable
+user_name_element = WebDriverWait(browser, 20).until(
+    EC.presence_of_element_located((By.CSS_SELECTOR, "span.Button-label"))
+)
 
-    user_name = user_name_element.text
+user_name = user_name_element.text
 
-    assert "Juan Andrés Young Hoyos" in user_name
-    print("Verificación exitosa: El nombre del usuario es correcto.")
+assert "Juan Andrés Young Hoyos" in user_name
+print("Verificación exitosa: El nombre del usuario es correcto.")
 
-except Exception as e:
-    print(f"An error occurred: {e}")
-finally:
-    # Cerrar el navegador
-    browser.quit()
+# Cerrar el navegador
+browser.quit()
